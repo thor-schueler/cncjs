@@ -646,5 +646,9 @@
   "None": "Žádný",
   "WebGL:": "WebGL:",
   "Drop files to upload": "Přetáhněte sem soubory k nahrání",
-  "Uploading...": "Nahrávání..."
+  "Uploading...": "Nahrávání...",
+  "Appearance": "Appearance",
+  "Theme:": "Theme:",
+  "Light": "Light",
+  "Dark": "Dark"
 }
