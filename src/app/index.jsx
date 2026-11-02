@@ -37,6 +37,7 @@ import Space from './components/Space';
 import './styles/vendor.styl';
 import './styles/theme.styl';
 import './styles/app.styl';
+import './styles/theme-overrides.styl';
 import { applyTheme } from './lib/theme';
 
 const renderPage = () => {
