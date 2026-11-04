@@ -204,13 +204,29 @@
     border-color: #0096cc;
   }
 
-.theme-dark .Select-control .Select-multi-value-wrapper,
-.theme-dark .Select-control .Select-value,
-.theme-dark .Select-control .Select-value-label,
-.theme-dark .Select-control .Select-input,
-.theme-dark .Select-control .Select-input > input {
-  background: transparent !important;
-}
+  .theme-dark .Select-control .Select-multi-value-wrapper,
+  .theme-dark .Select-control .Select-value,
+  .theme-dark .Select-control .Select-value-label,
+  .theme-dark .Select-control .Select-input,
+  .theme-dark .Select-control .Select-input > input {
+    background: transparent !important;
+  }
+
+  .theme-dark [class*="buttons---open---"] > [class*="buttons---dropdown-toggle---"][class*="buttons---btn-border---"],
+  .theme-dark [class*="buttons---open---"] > [class*="buttons---dropdown-toggle---"][class*="buttons---btn-border---"]:hover,
+  .theme-dark [class*="buttons---open---"] > [class*="buttons---dropdown-toggle---"][class*="buttons---btn-border---"]:focus,
+  .theme-dark [class*="buttons---open---"] > [class*="buttons---dropdown-toggle---"][class*="buttons---btn-default---"],
+  .theme-dark [class*="buttons---open---"] > [class*="buttons---dropdown-toggle---"][class*="buttons---btn-default---"]:hover,
+  .theme-dark [class*="buttons---open---"] > [class*="buttons---dropdown-toggle---"][class*="buttons---btn-default---"]:focus {
+    color: var(--color-text) !important;
+    background-color: var(--color-surface-active) !important;
+    background-image: none !important;
+    border-color: var(--color-border-stronger) !important;
+  }
+
+  .theme-dark [class*="Spindle/index__icon-fan--"] {
+    filter: invert(.85);
+  }
 
   /* ===== @trendmicro/react-table ===== */
   .theme-dark [class*="table---table-wrapper---"] {
@@ -530,4 +546,17 @@
   .theme-dark .Select.is-open > .Select-control {
     background-color: var(--color-surface) !important;
   }
+
+  /* styles/bootstrap-override.styl (global, applies to both themes) */
+  [class*="dropdown---dropdown-toggle---"] > sub {
+      bottom: 0; 
+  }
+
+  /* Webcam toolbar icons (not the colored illustration, not already-inverted ones) */
+  .theme-dark [class*="Webcam/index__icon-"]:not([class*="index__icon-webcam--"]):not([class*="index__inverted--"]),
+  /* Visualizer workflow-control menu icons */
+  .theme-dark [class*="icon-perimeter-tracing-"] {
+    filter: invert(.85);
+  }
+
 }
