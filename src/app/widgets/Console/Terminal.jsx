@@ -10,11 +10,13 @@ import chalk from 'app/lib/chalk';
 import log from 'app/lib/log';
 import History from './History';
 import styles from './index.styl';
+import { DEFAULT_FONT_SIZE, FONT_SIZE_PX } from './constants';
 
 Terminal.applyAddon(fit);
 
 class TerminalWrapper extends PureComponent {
     static propTypes = {
+      fontSize: PropTypes.number,
       cols: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       rows: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       cursorBlink: PropTypes.bool,
@@ -24,6 +26,7 @@ class TerminalWrapper extends PureComponent {
     };
 
     static defaultProps = {
+      fontSize: FONT_SIZE_PX[DEFAULT_FONT_SIZE],
       cols: 'auto',
       rows: 'auto',
       cursorBlink: true,
@@ -246,11 +249,12 @@ class TerminalWrapper extends PureComponent {
     };
 
     componentDidMount() {
-      const { cursorBlink, scrollback, tabStopWidth } = this.props;
+      const { cursorBlink, scrollback, tabStopWidth, fontSize } = this.props;
       this.term = new Terminal({
         cursorBlink,
         scrollback,
-        tabStopWidth
+        tabStopWidth,
+        fontSize
       });
       this.term.prompt = () => {
         this.term.write('\r\n');
@@ -266,12 +270,11 @@ class TerminalWrapper extends PureComponent {
       this.term.focus(false);
 
       this.term.setOption('fontFamily', 'Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif');
-      const xtermElement = el.querySelector('.xterm');
-      xtermElement.style.paddingLeft = '3px';
+      this.term.setOption('lineHeight', 1.2);
+      this.term.setOption('letterSpacing', 1);
 
       const viewportElement = el.querySelector('.xterm-viewport');
       this.verticalScrollbar = new PerfectScrollbar(viewportElement);
-
       this.resize();
     }
 
@@ -298,12 +301,22 @@ class TerminalWrapper extends PureComponent {
       if (nextProps.tabStopWidth !== this.props.tabStopWidth) {
         this.term.setOption('tabStopWidth', nextProps.tabStopWidth);
       }
+      if (nextProps.fontSize !== this.props.fontSize) {
+        this.term.setOption('fontSize', nextProps.fontSize);
+      }
     }
 
     componentDidUpdate(prevProps) {
       if (this.props.cols !== prevProps.cols || this.props.rows !== prevProps.rows) {
         const { cols, rows } = this.props;
         this.resize(cols, rows);
+      }
+      if (this.props.fontSize !== prevProps.fontSize) {
+        // Cell size changed: recompute the geometry and refresh the scrollbar
+        this.resize();
+        if (this.verticalScrollbar) {
+          this.verticalScrollbar.update();
+        }
       }
     }
 
