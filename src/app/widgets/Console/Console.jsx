@@ -38,6 +38,9 @@ class Console extends PureComponent {
           cursorBlink={state.terminal.cursorBlink}
           scrollback={state.terminal.scrollback}
           tabStopWidth={state.terminal.tabStopWidth}
+          background={state.terminal.background}
+          textColor={state.terminal.textColor}
+          cursorColor={state.terminal.cursorColor}
           onData={actions.onTerminalData}
         />
       );

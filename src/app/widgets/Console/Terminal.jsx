@@ -10,7 +10,8 @@ import chalk from 'app/lib/chalk';
 import log from 'app/lib/log';
 import History from './History';
 import styles from './index.styl';
-import { DEFAULT_FONT_SIZE, FONT_SIZE_PX } from './constants';
+import { DEFAULT_FONT_SIZE, FONT_SIZE_PX, DEFAULT_BACKGROUND, DEFAULT_CURSOR_COLOR, DEFAULT_TEXT_COLOR } from './constants';
+import { buildTerminalTheme } from './terminal-theme';
 
 Terminal.applyAddon(fit);
 
@@ -22,6 +23,9 @@ class TerminalWrapper extends PureComponent {
       cursorBlink: PropTypes.bool,
       scrollback: PropTypes.number,
       tabStopWidth: PropTypes.number,
+      background: PropTypes.string,
+      textColor: PropTypes.string,
+      cursorColor: PropTypes.string,
       onData: PropTypes.func
     };
 
@@ -32,6 +36,9 @@ class TerminalWrapper extends PureComponent {
       cursorBlink: true,
       scrollback: 1000,
       tabStopWidth: 4,
+      background: DEFAULT_BACKGROUND,
+      textColor: DEFAULT_TEXT_COLOR,
+      cursorColor: DEFAULT_CURSOR_COLOR,
       onData: () => {}
     };
 
@@ -248,14 +255,35 @@ class TerminalWrapper extends PureComponent {
       }
     };
 
+    getTheme(props = this.props) {
+      return buildTerminalTheme(props.background, props.textColor, props.cursorColor);
+    }
+
+    applyBackground(color) {
+      const el = ReactDOM.findDOMNode(this.terminalContainer);
+      if (!el) {
+        return;
+      }
+      el.style.backgroundColor = color;
+      ['.xterm', '.xterm-viewport'].forEach(selector => {
+        const node = el.querySelector(selector);
+        if (node) {
+          node.style.backgroundColor = color;
+        }
+      });
+    }
+
     componentDidMount() {
       const { cursorBlink, scrollback, tabStopWidth, fontSize } = this.props;
+      const theme = this.getTheme();
       this.term = new Terminal({
         cursorBlink,
         scrollback,
         tabStopWidth,
-        fontSize
+        fontSize,
+        theme
       });
+
       this.term.prompt = () => {
         this.term.write('\r\n');
         this.term.write(chalk.white(this.prompt));
@@ -266,6 +294,7 @@ class TerminalWrapper extends PureComponent {
 
       const el = ReactDOM.findDOMNode(this.terminalContainer);
       this.term.open(el);
+      this.applyBackground(theme.background);
       this.term.fit();
       this.term.focus(false);
 
@@ -303,6 +332,13 @@ class TerminalWrapper extends PureComponent {
       }
       if (nextProps.fontSize !== this.props.fontSize) {
         this.term.setOption('fontSize', nextProps.fontSize);
+      }
+      if (nextProps.background !== this.props.background ||
+          nextProps.textColor !== this.props.textColor ||
+          nextProps.cursorColor !== this.props.cursorColor) {
+        const theme = this.getTheme(nextProps);
+        this.term.setOption('theme', theme);
+        this.applyBackground(theme.background);
       }
     }
 
