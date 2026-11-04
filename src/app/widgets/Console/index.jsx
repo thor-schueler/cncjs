@@ -9,9 +9,12 @@ import Widget from 'app/components/Widget';
 import chalk from 'app/lib/chalk';
 import controller from 'app/lib/controller';
 import i18n from 'app/lib/i18n';
+import portal from 'app/lib/portal';
 import WidgetConfig from '../WidgetConfig';
 import Console from './Console';
 import styles from './index.styl';
+import Settings from './Settings';
+import { DEFAULT_FONT_SIZE } from './constants';
 
 // The buffer starts with 254 bytes free. The terminating <LF> or <CR> counts as a byte.
 const TERMINAL_COLS = 254;
@@ -68,6 +71,23 @@ class ConsoleWidget extends PureComponent {
           __sender__: this.senderId
         };
         controller.write(data, context);
+      },
+      setFontSize: (fontSize) => {
+        this.setState(state => ({
+          terminal: { ...state.terminal, fontSize }
+        }));
+      },
+      openSettings: () => {
+        portal(({ onClose }) => (
+          <Settings
+            fontSize={this.state.terminal.fontSize}
+            onSave={({ fontSize }) => {
+              this.actions.setFontSize(fontSize);
+              onClose();
+            }}
+            onCancel={onClose}
+          />
+        ));
       }
     };
 
@@ -133,10 +153,11 @@ class ConsoleWidget extends PureComponent {
 
     componentDidUpdate(prevProps, prevState) {
       const {
-        minimized
+        minimized, terminal
       } = this.state;
 
       this.config.set('minimized', minimized);
+      this.config.set('fontSize', terminal.fontSize);
     }
 
     getInitialState() {
@@ -147,6 +168,7 @@ class ConsoleWidget extends PureComponent {
 
         // Terminal
         terminal: {
+          fontSize: this.config.get('fontSize', DEFAULT_FONT_SIZE),
           cols: TERMINAL_COLS,
           rows: TERMINAL_ROWS,
           cursorBlink: true,
@@ -214,6 +236,13 @@ class ConsoleWidget extends PureComponent {
               {i18n._('Console')}
             </Widget.Title>
             <Widget.Controls className={this.props.sortable.filterClassName}>
+              <Widget.Button
+                aria-label="Console settings"
+                title={i18n._('Edit')}
+                onClick={actions.openSettings}
+              >
+                <i aria-hidden="true" className="fa fa-cog" />
+              </Widget.Button>
               <Widget.Button
                 aria-label="Clear console"
                 title={i18n._('Clear all')}
