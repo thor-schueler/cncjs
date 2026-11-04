@@ -173,6 +173,10 @@
     filter: invert(.8);
   }
 
+  .theme-dark [class*="Console/index__select-all--"] {
+    filter: invert(.85);
+  }
+
   .theme-dark [class*="buttons---btn-default---"][disabled]:hover,
   .theme-dark [class*="buttons---btn-default---"][disabled]:focus,
   .theme-dark [class*="buttons---btn-default---"][class*="---disabled---"]:hover,
@@ -199,6 +203,14 @@
   .theme-dark [class*="buttons---btn-border---"]:focus {
     border-color: #0096cc;
   }
+
+.theme-dark .Select-control .Select-multi-value-wrapper,
+.theme-dark .Select-control .Select-value,
+.theme-dark .Select-control .Select-value-label,
+.theme-dark .Select-control .Select-input,
+.theme-dark .Select-control .Select-input > input {
+  background: transparent !important;
+}
 
   /* ===== @trendmicro/react-table ===== */
   .theme-dark [class*="table---table-wrapper---"] {
@@ -509,5 +521,13 @@
   }
   .theme-dark [class*="radio---input-radio---"]:not(:checked):disabled + [class*="radio---control-indicator---"]::before {
     background-color: var(--color-input-disabled-bg);
+  }
+
+  /* ======= @trendmicro/react-select ===== */
+  .theme-dark .Select.is-disabled > .Select-control,
+  .theme-dark .Select.is-focused > .Select-control,
+  .theme-dark .Select.is-focused:not(.is-open) > .Select-control,
+  .theme-dark .Select.is-open > .Select-control {
+    background-color: var(--color-surface) !important;
   }
 }
