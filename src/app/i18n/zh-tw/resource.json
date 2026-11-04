@@ -644,8 +644,8 @@
   "WebGL:": "WebGL:",
   "Drop files to upload": "將檔案拖曳至此處上傳",
   "Uploading...": "正在上傳...",
-  "Appearance": "Appearance",
-  "Theme:": "Theme:",
-  "Light": "Light",
-  "Dark": "Dark"
+  "Appearance": "外觀",
+  "Theme:": "主題：",
+  "Light": "淺色",
+  "Dark": "深色"
 }

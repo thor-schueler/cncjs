@@ -647,8 +647,8 @@
   "WebGL:": "WebGL:",
   "Drop files to upload": "Přetáhněte sem soubory k nahrání",
   "Uploading...": "Nahrávání...",
-  "Appearance": "Appearance",
-  "Theme:": "Theme:",
-  "Light": "Light",
-  "Dark": "Dark"
+  "Appearance": "Vzhled",
+  "Theme:": "Motiv:",
+  "Light": "Světlý",
+  "Dark": "Tmavý"
 }

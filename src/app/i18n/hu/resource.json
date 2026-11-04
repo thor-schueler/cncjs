@@ -645,8 +645,8 @@
   "WebGL:": "WebGL:",
   "Drop files to upload": "Húzd ide a feltöltendő fájlokat",
   "Uploading...": "Feltöltés...",
-  "Appearance": "Appearance",
-  "Theme:": "Theme:",
-  "Light": "Light",
-  "Dark": "Dark"
+  "Appearance": "Megjelenés",
+  "Theme:": "Téma:",
+  "Light": "Világos",
+  "Dark": "Sötét"
 }

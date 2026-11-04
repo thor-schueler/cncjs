@@ -646,8 +646,8 @@
   "WebGL:": "WebGL:",
   "Drop files to upload": "Trascina qui i file da caricare",
   "Uploading...": "Caricamento...",
-  "Appearance": "Appearance",
-  "Theme:": "Theme:",
-  "Light": "Light",
-  "Dark": "Dark"
+  "Appearance": "Aspetto",
+  "Theme:": "Tema:",
+  "Light": "Chiaro",
+  "Dark": "Scuro"
 }

@@ -647,8 +647,8 @@
   "WebGL:": "WebGL:",
   "Drop files to upload": "Перетягніть файли для завантаження",
   "Uploading...": "Завантаження...",
-  "Appearance": "Appearance",
-  "Theme:": "Theme:",
-  "Light": "Light",
-  "Dark": "Dark"
+  "Appearance": "Вигляд",
+  "Theme:": "Тема:",
+  "Light": "Світлий",
+  "Dark": "Темний"
 }
