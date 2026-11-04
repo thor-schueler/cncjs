@@ -255,6 +255,14 @@ class TerminalWrapper extends PureComponent {
       }
     };
 
+    invertColor(bg) {
+        const color = bg.replace('#', '');
+        const r = 255 - parseInt(color.substring(0, 2), 16);
+        const g = 255 - parseInt(color.substring(2, 4), 16);
+        const b = 255 - parseInt(color.substring(4, 6), 16);
+        return `rgba(${r}, ${g}, ${b}, 0.5)`;
+    }
+
     getTheme(props = this.props) {
       return buildTerminalTheme(props.background, props.textColor, props.cursorColor);
     }
@@ -264,12 +272,19 @@ class TerminalWrapper extends PureComponent {
       if (!el) {
         return;
       }
+      const thumbColor = this.invertColor(color);
+      el.style.setProperty('--terminal-bg', color);
+      el.style.setProperty('--terminal-thumb', thumbColor);
       el.style.backgroundColor = color;
+      el.style.borderColor = color;
       ['.xterm', '.xterm-viewport'].forEach(selector => {
         const node = el.querySelector(selector);
         if (node) {
           node.style.backgroundColor = color;
         }
+      });
+      el.querySelectorAll('.ps__rail-y').forEach(node => {
+        node.style.backgroundColor = color;
       });
     }
 
@@ -294,7 +309,6 @@ class TerminalWrapper extends PureComponent {
 
       const el = ReactDOM.findDOMNode(this.terminalContainer);
       this.term.open(el);
-      this.applyBackground(theme.background);
       this.term.fit();
       this.term.focus(false);
 
@@ -304,6 +318,7 @@ class TerminalWrapper extends PureComponent {
 
       const viewportElement = el.querySelector('.xterm-viewport');
       this.verticalScrollbar = new PerfectScrollbar(viewportElement);
+      this.applyBackground(theme.background);
       this.resize();
     }
 

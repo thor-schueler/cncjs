@@ -41,8 +41,8 @@ const colorLabel = (name) => ({
   red: i18n._('Red')
 }[name]);
 
-const errorStyle = { color: 'var(--color-error-text)' };
-const hintStyle = { color: 'var(--color-text-hint)', marginTop: 4 };
+const errorStyle = { color: 'var(--color-error-text, #a94442)' };
+const hintStyle = { color: 'var(--color-text-hint, #767676)', marginTop: 4 };
 
 class Settings extends PureComponent {
     static propTypes = {
@@ -185,7 +185,7 @@ class Settings extends PureComponent {
                 style={{
                   marginTop: 8,
                   padding: '6px 8px',
-                  border: '1px solid var(--color-border-strong)',
+                  border: '1px solid var(--color-border-strong, #ccc)',
                   fontFamily: 'Consolas, Menlo, Monaco, monospace',
                   fontSize: 13,
                   background: theme.background,
