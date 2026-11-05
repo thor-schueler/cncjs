@@ -559,4 +559,16 @@
     filter: invert(.85);
   }
 
+  /* Visualizer footer toolbar icons (PNG and SVG) */
+  .theme-dark [class*="Visualizer/index__widget-footer--"] button img {
+    filter: invert(.62) !important;
+  }
+  .theme-dark [class*="Visualizer/index__widget-footer--"] button:hover img {
+    filter: invert(1) !important;
+  }
+  .theme-dark [class*="Visualizer/index__widget-footer--"] button.highlight img,
+  .theme-dark [class*="Visualizer/index__widget-footer--"] button.highlight:hover img {
+    filter: invert(0) !important;
+  }
+ 
 }
