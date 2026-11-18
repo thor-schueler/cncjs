@@ -682,5 +682,7 @@
   "Along Y Axis": "Уздовж осі Y",
   "Command not sent: it does not fit the terminal width. Rewrite the command or increase Columns in Console Settings.": "Команду не надіслано: вона не вміщується в ширину терміналу. Перепишіть команду або збільште кількість стовпців у налаштуваннях консолі.",
   "This history entry does not fit the terminal width. Rewrite the command or increase Columns in Console Settings to recall it.": "Цей запис історії не вміщується в ширину терміналу. Перепишіть команду або збільште кількість стовпців у налаштуваннях консолі, щоб викликати його.",
-  "Finish or clear the command you are typing before changing the number of columns.": "Завершіть або видаліть команду, яку ви вводите, перш ніж змінювати кількість стовпців."
+  "Finish or clear the command you are typing before changing the number of columns.": "Завершіть або видаліть команду, яку ви вводите, перш ніж змінювати кількість стовпців.",
+  "Appearance": "Вигляд",
+  "Theme:": "Тема:"
 }

@@ -681,5 +681,7 @@
   "Along Y Axis": "Ao longo do eixo Y",
   "Command not sent: it does not fit the terminal width. Rewrite the command or increase Columns in Console Settings.": "Comando não enviado: ele não cabe na largura do terminal. Reescreva o comando ou aumente as colunas nas configurações do console.",
   "This history entry does not fit the terminal width. Rewrite the command or increase Columns in Console Settings to recall it.": "Esta entrada do histórico não cabe na largura do terminal. Reescreva o comando ou aumente as colunas nas configurações do console para recuperá-la.",
-  "Finish or clear the command you are typing before changing the number of columns.": "Conclua ou apague o comando que você está digitando antes de alterar o número de colunas."
+  "Finish or clear the command you are typing before changing the number of columns.": "Conclua ou apague o comando que você está digitando antes de alterar o número de colunas.",
+  "Appearance": "Aparência",
+  "Theme:": "Tema:"
 }
