@@ -84,6 +84,9 @@ class MarlinController {
           log.warn(`Disconnected from serial port "${this.options.port}":`, err);
         }
 
+        // The port went away on its own (power loss, cable pulled), not via a close request
+        this.portLost = true;
+
         this.close(err => {
           // Remove controller from store
           const port = this.options.port;
@@ -1263,8 +1266,10 @@ class MarlinController {
 
       this.emit('serialport:close', {
         port: port,
-        inuse: false
+        inuse: false,
+        lost: !!this.portLost
       });
+      this.portLost = false;
 
       // Emit a change event to all connected sockets
       if (this.engine.io) {

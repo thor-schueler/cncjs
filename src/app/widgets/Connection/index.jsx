@@ -256,20 +256,32 @@ class ConnectionWidget extends PureComponent {
           ports: ports
         }));
 
+        this.stopReconnectPolling();
+
         log.debug(`Established a connection to the serial port "${port}"`);
       },
       'serialport:close': (options) => {
-        const { port } = options;
+        const { port, lost } = options;
 
         log.debug(`The serial port "${port}" is disconected`);
+
+        // Only a lost port is reopened; a close by this or another client is left alone
+        const unexpected = !!lost && !this.userClosedPort;
+        this.userClosedPort = false;
 
         this.setState(state => ({
           alertMessage: '',
           connecting: false,
-          connected: false
+          connected: false,
+          // Re-arm auto reconnect when the port was lost (power loss, cable pulled), not closed by the user
+          hasReconnected: unexpected ? false : state.hasReconnected
         }));
 
         this.refreshPorts();
+
+        if (unexpected && this.state.autoReconnect) {
+          this.startReconnectPolling();
+        }
       },
       'serialport:error': (options) => {
         const { port } = options;
@@ -281,6 +293,10 @@ class ConnectionWidget extends PureComponent {
         }));
 
         log.error(`Error opening serial port "${port}"`);
+
+        if (this._reconnectTimer) {
+          this.setState(state => ({ hasReconnected: false }));
+        }
       }
     };
 
@@ -290,6 +306,7 @@ class ConnectionWidget extends PureComponent {
     }
 
     componentWillUnmount() {
+      this.stopReconnectPolling();
       this.removeControllerEvents();
     }
 
@@ -407,6 +424,38 @@ class ConnectionWidget extends PureComponent {
       controller.listPorts();
     }
 
+    // Set by closePort() so that a user-initiated close does not trigger auto reconnect
+    userClosedPort = false;
+
+    _reconnectTimer = null;
+
+    // Poll the port list while an unexpectedly lost port is gone.
+    // The 'serialport:list' handler opens the port once it shows up again.
+    startReconnectPolling() {
+      if (this._reconnectTimer) {
+        return;
+      }
+      const interval = 3 * 1000;
+      this._reconnectTimer = setInterval(() => {
+        const { connected, connecting, autoReconnect } = this.state;
+        if (connected || !autoReconnect) {
+          this.stopReconnectPolling();
+          return;
+        }
+        if (connecting) {
+          return;
+        }
+        controller.listPorts();
+      }, interval);
+    }
+
+    stopReconnectPolling() {
+      if (this._reconnectTimer) {
+        clearInterval(this._reconnectTimer);
+        this._reconnectTimer = null;
+      }
+    }
+
     openPort(port, options) {
       const { baudrate } = { ...options };
 
@@ -431,12 +480,18 @@ class ConnectionWidget extends PureComponent {
           }));
 
           log.error(err);
+
+          if (this._reconnectTimer) {
+            this.setState(state => ({ hasReconnected: false }));
+          }
           return;
         }
       });
     }
 
     closePort(port = this.state.port) {
+      this.userClosedPort = true;
+      this.stopReconnectPolling();
       this.setState(state => ({
         connecting: false,
         connected: false
