@@ -83,6 +83,8 @@ class Controller {
     ports = [];
 
     loadedControllers = [];
+    // Options of the last openPort() call per port, used by rejoinPort()
+    portOptions = {};
     port = '';
     type = '';
     settings = {};
@@ -122,35 +124,15 @@ class Controller {
             }
 
             this.socket.on(eventName, (...args) => {
-                if (eventName === 'serialport:open') {
-                    const { controllerType, port } = { ...args[0] };
-                    this.port = port;
-                    this.type = controllerType;
-                }
-                if (eventName === 'serialport:close') {
-                    this.port = '';
-                    this.type = '';
-                    this.state = {};
-                    this.settings = {};
-                    this.workflow.state = 'idle';
-                }
-                if (eventName === 'workflow:state') {
-                    this.workflow.state = args[0];
-                }
-                if (eventName === 'controller:settings') {
-                    this.type = args[0];
-                    this.settings = { ...args[1] };
-                }
-                if (eventName === 'controller:state') {
-                    this.type = args[0];
-                    this.state = { ...args[1] };
-                }
-
-                const listeners = ensureArray(this.listeners[eventName]);
-                listeners.forEach(listener => {
-                    listener(...args);
-                });
+                this.dispatch(eventName, ...args);
             });
+        });
+
+        // After a reconnect (e.g. a tablet waking from sleep) the server sees a new socket that is
+        // not attached to any controller, so no machine output reaches this client. Rejoin the port
+        // this client still considers open.
+        this.socket.on('reconnect', () => {
+            this.rejoinPort();
         });
 
         this.socket.on('startup', (data) => {
@@ -168,6 +150,58 @@ class Controller {
                 // The callback can only be called once
                 next = null;
             }
+        });
+    }
+    // Updates the client-side state for a server event and calls the registered listeners.
+    // @param {string} eventName The name of the event.
+    dispatch(eventName, ...args) {
+        if (eventName === 'serialport:open') {
+            const { controllerType, port } = { ...args[0] };
+            this.port = port;
+            this.type = controllerType;
+        }
+        if (eventName === 'serialport:close') {
+            this.port = '';
+            this.type = '';
+            this.state = {};
+            this.settings = {};
+            this.workflow.state = 'idle';
+        }
+        if (eventName === 'workflow:state') {
+            this.workflow.state = args[0];
+        }
+        if (eventName === 'controller:settings') {
+            this.type = args[0];
+            this.settings = { ...args[1] };
+        }
+        if (eventName === 'controller:state') {
+            this.type = args[0];
+            this.state = { ...args[1] };
+        }
+
+        const listeners = ensureArray(this.listeners[eventName]);
+        listeners.forEach(listener => {
+            listener(...args);
+        });
+    }
+    // Opens the port this client considers open again, on the current socket.
+    // If the server has the port open, it attaches the socket and replays serialport:open,
+    // the controller state and settings. If the port was closed in the meantime it is reopened.
+    // If that fails, the port is reported as lost so that auto reconnect can take over.
+    rejoinPort() {
+        const { port } = this;
+        if (!port || !this.socket) {
+            return;
+        }
+
+        this.socket.emit('open', port, { ...this.portOptions[port] }, (err) => {
+            if (!err) {
+                return;
+            }
+            if (this.port !== port) {
+                return;
+            }
+            this.dispatch('serialport:close', { port, inuse: false, lost: true });
         });
     }
     // Disconnect from the server.
@@ -211,6 +245,7 @@ class Controller {
         if (typeof callback !== 'function') {
             callback = noop;
         }
+        this.portOptions[port] = { ...options };
         this.socket && this.socket.emit('open', port, options, callback);
     }
     // Closes an open connection.
