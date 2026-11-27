@@ -18,6 +18,7 @@ class Custom extends PureComponent {
       config: PropTypes.object,
       disabled: PropTypes.bool,
       fullscreen: PropTypes.bool,
+      colorMode: PropTypes.string,
       url: PropTypes.string,
       port: PropTypes.string
     };
@@ -47,9 +48,23 @@ class Custom extends PureComponent {
           controller: controller.type
         });
       }
-      if (!nextProps.disabled && !!nextProps.fullscreen !== !!this.props.fullscreen) {
-        this.postMessage('widget:state', { fullscreen: !!nextProps.fullscreen });
+      if (!nextProps.disabled && this.widgetStateChanged(nextProps)) {
+        this.postMessage('widget:state', this.getWidgetState(nextProps));
       }
+    }
+
+    // The widget state reported to the iframe. Each `widget:state` message carries all of it.
+    getWidgetState(props = this.props) {
+      return {
+        fullscreen: !!props.fullscreen,
+        colorMode: props.colorMode
+      };
+    }
+
+    widgetStateChanged(nextProps) {
+      const next = this.getWidgetState(nextProps);
+      const current = this.getWidgetState();
+      return next.fullscreen !== current.fullscreen || next.colorMode !== current.colorMode;
     }
 
     subscribe() {
@@ -61,7 +76,7 @@ class Custom extends PureComponent {
           });
         }),
         pubsub.subscribe('message:connect', () => {
-          this.postMessage('widget:state', { fullscreen: !!this.props.fullscreen });
+          this.postMessage('widget:state', this.getWidgetState());
         }),
         pubsub.subscribe('message:resize', (type, payload) => {
           const { scrollHeight } = { ...payload };

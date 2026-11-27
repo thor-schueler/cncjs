@@ -18,6 +18,7 @@ const defaultProps = {
   config: {},
   disabled: false,
   fullscreen: false,
+  colorMode: 'light',
   url: 'http://localhost:8000/widget/',
   port: '/dev/ttyUSB0'
 };
@@ -43,9 +44,10 @@ const updateProps = (instance, changes) => {
 
 const sent = postMessage => postMessage.mock.calls.map(([message]) => message);
 const actions = postMessage => sent(postMessage).map(message => message.action);
-const fullscreenValues = postMessage => actions(postMessage)
+const widgetStates = postMessage => actions(postMessage)
   .filter(action => action.type === 'widget:state')
-  .map(action => action.payload.fullscreen);
+  .map(action => action.payload);
+const fullscreenValues = postMessage => widgetStates(postMessage).map(state => state.fullscreen);
 
 afterEach(() => {
   mounted.splice(0).forEach(instance => instance.componentWillUnmount());
@@ -65,7 +67,7 @@ describe('widget notifications', () => {
       version: '1.2.3',
       action: {
         type: 'widget:state',
-        payload: { fullscreen: true }
+        payload: { fullscreen: true, colorMode: 'light' }
       }
     }, '*');
   });
@@ -100,7 +102,7 @@ describe('widget notifications', () => {
 
     expect(actions(postMessage)).toEqual(expect.arrayContaining([
       { type: 'change', payload: { port: '/dev/ttyUSB0', controller: 'Grbl' } },
-      { type: 'widget:state', payload: { fullscreen: true } }
+      { type: 'widget:state', payload: { fullscreen: true, colorMode: 'light' } }
     ]));
     expect(postMessage).toHaveBeenCalledTimes(2);
   });
@@ -139,6 +141,60 @@ describe('widget notifications', () => {
   });
 });
 
+describe('color mode', () => {
+  test('sends widget:state with the new color mode when it changes', () => {
+    const { instance, postMessage } = mount();
+
+    updateProps(instance, { colorMode: 'dark' });
+
+    expect(actions(postMessage)).toEqual([
+      { type: 'widget:state', payload: { fullscreen: false, colorMode: 'dark' } }
+    ]);
+  });
+
+  test('reports the current full screen state along with a color mode change', () => {
+    const { instance, postMessage } = mount({ fullscreen: true });
+
+    updateProps(instance, { colorMode: 'dark' });
+
+    expect(widgetStates(postMessage)).toEqual([{ fullscreen: true, colorMode: 'dark' }]);
+  });
+
+  test('sends one message when full screen and color mode change together', () => {
+    const { instance, postMessage } = mount();
+
+    updateProps(instance, { fullscreen: true, colorMode: 'dark' });
+
+    expect(widgetStates(postMessage)).toEqual([{ fullscreen: true, colorMode: 'dark' }]);
+  });
+
+  test('sends nothing when the color mode stays the same', () => {
+    const { instance, postMessage } = mount({ colorMode: 'dark' });
+
+    updateProps(instance, { colorMode: 'dark' });
+
+    expect(postMessage).not.toHaveBeenCalled();
+  });
+
+  test('does not send a color mode change while the widget is disabled', () => {
+    const { instance, postMessage } = mount({ disabled: true });
+
+    updateProps(instance, { colorMode: 'dark' });
+
+    expect(postMessage).not.toHaveBeenCalled();
+  });
+
+  test('reports the color mode as of the handshake', () => {
+    const { instance, postMessage } = mount();
+    updateProps(instance, { colorMode: 'dark' });
+    postMessage.mockClear();
+
+    pubsub.publishSync('message:connect');
+
+    expect(widgetStates(postMessage)).toEqual([{ fullscreen: false, colorMode: 'dark' }]);
+  });
+});
+
 describe('message:connect handshake', () => {
   test.each([false, true])('reports fullscreen=%s without emitting a transition', fullscreen => {
     const { postMessage } = mount({ fullscreen });
@@ -147,7 +203,7 @@ describe('message:connect handshake', () => {
 
     expect(actions(postMessage)).toEqual(expect.arrayContaining([
       { type: 'change', payload: { port: '/dev/ttyUSB0', controller: 'Grbl' } },
-      { type: 'widget:state', payload: { fullscreen } }
+      { type: 'widget:state', payload: { fullscreen, colorMode: 'light' } }
     ]));
     expect(postMessage).toHaveBeenCalledTimes(2);
   });
@@ -197,7 +253,7 @@ describe('message:connect handshake', () => {
     callbacks.reverse().forEach(callback => callback());
 
     expect(actions(postMessage)).toEqual([
-      { type: 'widget:state', payload: { fullscreen: true } },
+      { type: 'widget:state', payload: { fullscreen: true, colorMode: 'light' } },
       { type: 'change', payload: { port: '/dev/ttyUSB0', controller: 'Grbl' } }
     ]);
   });
