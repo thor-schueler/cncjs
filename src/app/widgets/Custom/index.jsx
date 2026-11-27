@@ -5,6 +5,7 @@ import Space from 'app/components/Space';
 import Widget from 'app/components/Widget';
 import controller from 'app/lib/controller';
 import i18n from 'app/lib/i18n';
+import { normalizeColorMode } from 'app/lib/theme';
 import WidgetConfig from '../WidgetConfig';
 import Custom from './Custom';
 import Settings from './Settings';
@@ -97,13 +98,32 @@ class CustomWidget extends PureComponent {
 
     component = null;
 
+    colorModeObserver = null;
+
     componentDidMount() {
       this.addControllerEvents();
+
+      // Follow the app's color mode so the iframe can match it
+      this.colorModeObserver = new MutationObserver(this.updateColorMode);
+      this.colorModeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-color-mode'] });
     }
 
     componentWillUnmount() {
       this.removeControllerEvents();
+
+      if (this.colorModeObserver) {
+        this.colorModeObserver.disconnect();
+        this.colorModeObserver = null;
+      }
     }
+
+    getColorMode() {
+      return normalizeColorMode(document.documentElement.getAttribute('data-color-mode'));
+    }
+
+    updateColorMode = () => {
+      this.setState({ colorMode: this.getColorMode() });
+    };
 
     componentDidUpdate(prevProps, prevState) {
       const {
@@ -123,6 +143,7 @@ class CustomWidget extends PureComponent {
       return {
         minimized: this.config.get('minimized', false),
         isFullscreen: false,
+        colorMode: this.getColorMode(),
         disabled: this.config.get('disabled'),
         title: this.config.get('title', ''),
         url: this.config.get('url', ''),
@@ -302,6 +323,7 @@ class CustomWidget extends PureComponent {
               config={config}
               disabled={state.disabled}
               fullscreen={isFullscreen}
+              colorMode={state.colorMode}
               url={state.url}
               port={state.port}
             />
