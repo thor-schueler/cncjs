@@ -28,6 +28,8 @@ class CustomWidget extends PureComponent {
       this.setState({ minimized: true });
     };
 
+    // Used by Expand All. This only changes the layout: a disabled widget opens and shows that it is
+    // disabled, but it is not enabled. Only the widget's own controls enable it.
     expand = () => {
       this.setState({ minimized: false });
     };
@@ -37,20 +39,45 @@ class CustomWidget extends PureComponent {
     state = this.getInitialState();
 
     action = {
+      // Disabling collapses the widget and leaves full screen, since there is nothing left to show.
+      // Enabling only switches it on: an enabled widget can keep running while collapsed.
       toggleDisabled: () => {
-        const { disabled } = this.state;
-        this.setState({ disabled: !disabled });
-      },
-      toggleFullscreen: () => {
-        const { minimized, isFullscreen } = this.state;
-        this.setState({
-          minimized: isFullscreen ? minimized : false,
-          isFullscreen: !isFullscreen
+        this.setState(state => {
+          if (state.disabled) {
+            return { disabled: false };
+          }
+          return {
+            disabled: true,
+            minimized: true,
+            isFullscreen: false
+          };
         });
       },
+      // Going full screen on a disabled widget also enables it, so there is something to show
+      toggleFullscreen: () => {
+        this.setState(state => {
+          if (state.isFullscreen) {
+            return { isFullscreen: false };
+          }
+          return {
+            minimized: false,
+            isFullscreen: true,
+            disabled: state.url ? false : state.disabled
+          };
+        });
+      },
+      // Expanding a disabled widget also enables it, so there is something to show.
+      // Collapsing never disables it.
       toggleMinimized: () => {
-        const { minimized } = this.state;
-        this.setState({ minimized: !minimized });
+        this.setState(state => {
+          if (!state.minimized) {
+            return { minimized: true };
+          }
+          return {
+            minimized: false,
+            disabled: state.url ? false : state.disabled
+          };
+        });
       },
       openModal: (name = MODAL_NONE, params = {}) => {
         this.setState({
