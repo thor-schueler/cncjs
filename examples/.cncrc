@@ -45,5 +45,8 @@
   ],
   "events": [],
   "macros": [],
-  "users": []
+  "users": [],
+  "connectionRecovery": {
+    "action": "reconnect"
+  }
 }

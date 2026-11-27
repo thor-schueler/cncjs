@@ -333,11 +333,13 @@ const appMain = () => {
     const webroot = _get(settings, 'assets.app.routes[0]', ''); // with trailing slash
     const lng = req.language;
     const t = req.t;
+    const connectionRecoveryAction = config.get('connectionRecovery.action') === 'offline' ? 'offline' : 'reconnect';
 
     return {
       webroot: webroot,
       lang: lng,
       colorMode: config.get('state.colorMode') === 'dark' ? 'dark' : 'light',
+      connectionRecoveryAction: connectionRecoveryAction,
       title: `${t('title')} ${settings.version}`,
       loading: t('loading')
     };
