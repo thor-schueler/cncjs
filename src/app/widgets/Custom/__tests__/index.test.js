@@ -106,7 +106,7 @@ describe('fullscreen', () => {
 });
 
 describe('color mode', () => {
-  const mount = () => {
+  const createWidget = () => {
     const widget = new CustomWidget(props);
     widget.setState = changes => {
       widget.state = { ...widget.state, ...changes };
@@ -122,19 +122,19 @@ describe('color mode', () => {
   test('starts with the app color mode', () => {
     rootAttributes['data-color-mode'] = 'dark';
 
-    const widget = mount();
+    const widget = createWidget();
 
     expect(findElement(widget.render(), 'CustomContent').props.colorMode).toBe('dark');
   });
 
   test('falls back to light before a color mode has been applied', () => {
-    const widget = mount();
+    const widget = createWidget();
 
     expect(findElement(widget.render(), 'CustomContent').props.colorMode).toBe('light');
   });
 
   test('follows color mode changes while mounted', () => {
-    const widget = mount();
+    const widget = createWidget();
     widget.componentDidMount();
 
     setColorMode('dark');
@@ -147,7 +147,7 @@ describe('color mode', () => {
   });
 
   test('watches only the color mode attribute on the root element', () => {
-    const widget = mount();
+    const widget = createWidget();
     widget.componentDidMount();
 
     expect(observers).toHaveLength(1);
@@ -160,7 +160,7 @@ describe('color mode', () => {
   });
 
   test('stops watching on unmount', () => {
-    const widget = mount();
+    const widget = createWidget();
     widget.componentDidMount();
     const observer = observers[0];
 
